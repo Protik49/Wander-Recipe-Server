@@ -52,11 +52,15 @@ async function run() {
       res.send(result);
     });
 
-      app.get("/recipes/:email", async (req, res) => {
-          const email = req.params.email;
-          const result = await recipeCollection.find({ email: email }).toArray();
-          res.send(result);
-    })
+    app.get("/recipes/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await recipeCollection
+        .find({ userEmail: email })
+        .toArray();
+      res.send(result);
+    });
+
+ 
 
     app.post("/recipes", async (req, res) => {
       const recipe = req.body;
@@ -64,7 +68,24 @@ async function run() {
       res.send(result);
     });
 
-      
+    app.put("/recipes/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedRecipe = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: updatedRecipe,
+      };
+
+      const result = await recipeCollection.updateOne(query, updatedDoc);
+      res.send(result);
+    });
+
+    app.delete("/recipes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await recipeCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     //await client.close();
