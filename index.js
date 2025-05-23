@@ -60,8 +60,6 @@ async function run() {
       res.send(result);
     });
 
- 
-
     app.post("/recipes", async (req, res) => {
       const recipe = req.body;
       const result = await recipeCollection.insertOne(recipe);
@@ -78,6 +76,29 @@ async function run() {
 
       const result = await recipeCollection.updateOne(query, updatedDoc);
       res.send(result);
+    });
+
+    app.put("/recipes/:id/like", async (req, res) => {
+      const id = req.params.id;
+      const { likedBy } = req.body;
+
+      const query = { _id: new ObjectId(id) };
+
+      const recipe = await recipeCollection.findOne(query);
+
+      const updatedDoc = {
+        $addToSet: { likedBy: likedBy },
+        $inc: { likeCount: 1 },
+      };
+
+      if (recipe.likedBy.includes(likedBy)) {
+        return res.send({ modifiedCount: 0, likes: recipe.likeCount });
+      } else {
+        const result = await recipeCollection.updateOne(query, updatedDoc);
+        const updatedRecipe = await recipeCollection.findOne(query)
+
+        res.send({ modifiedCount: 1, likes: updatedRecipe.likeCount });
+      }
     });
 
     app.delete("/recipes/:id", async (req, res) => {
