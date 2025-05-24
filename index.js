@@ -25,12 +25,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     
-    await client.connect();
+    // await client.connect();
     
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
 
     const recipeCollection = client.db("recipeDB").collection("recipes");
 
@@ -41,6 +41,11 @@ async function run() {
     }
 
     app.get("/recipes", async (req, res) => {
+      const result = await recipeCollection.find().toArray();
+      res.send(result);
+    });
+    
+    app.get("/recipes/liked", async (req, res) => {
       const result = await recipeCollection.find().toArray();
       res.send(result);
     });
